@@ -1,0 +1,357 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyNet AI - Architecting the Future</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            overflow-x: hidden;
+        }
+        .futuristic-text {
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .glow {
+            text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc;
+        }
+        .nav-link:hover {
+            color: #00ffcc;
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+        .video-placeholder, .image-placeholder {
+            background: #1a1a1a;
+            border: 2px solid #00ffcc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00ffcc;
+            font-size: 1.2rem;
+        }
+        .section-transition {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 1s ease-out;
+        }
+        .section-transition.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        .parallax {
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+        }
+        .cta-banner {
+            background: linear-gradient(90deg, #00ffcc, #0a3d62);
+            animation: pulse 4s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Particle Background -->
+    <div id="particles-js" class="absolute inset-0"></div>
+
+<!-- Navigation -->
+<nav id="nav" class="fixed top-0 w-full bg-gradient-to-r from-[#010205] to-[#0a0020] backdrop-blur-md z-50 py-3 shadow-md transition-all duration-300">
+    <div class="container mx-auto flex justify-between items-center px-4 relative">
+        <a href="/" class="text-2xl futuristic-text glow animate-pulse-glow" style="text-shadow: 0 0 20px #00ffff, 0 0 30px #00ffff;">SkyNet AI</a>
+        <div class="hidden md:flex space-x-6">
+            <a href="#genesis" class="nav-link text-lg hover-trigger" data-section="genesis">Genesis</a>
+            <a href="#arsenal" class="nav-link text-lg hover-trigger" data-section="arsenal">Arsenal</a>
+            <a href="#oraculum" class="nav-link text-lg hover-trigger" data-section="oraculum">Oraculum</a>
+            <a href="#locus" class="nav-link text-lg hover-trigger" data-section="locus">Locus</a>
+            <a href="#synergia" class="nav-link text-lg hover-trigger" data-section="synergia">Synergia</a>
+            <a href="#recruitment" class="nav-link text-lg hover-trigger" data-section="recruitment">Join Us</a>
+        </div>
+        <div class="md:hidden">
+            <button id="menu-toggle" class="text-xl futuristic-text glow focus:outline-none">
+                <span class="hamburger">☰</span>
+            </button>
+            <div id="mobile-menu" class="hidden absolute top-full right-0 mt-1 bg-[#010205]/90 p-4 rounded-lg shadow-md space-y-4 transform translate-x-full transition-all duration-300">
+                <a href="#genesis" class="block nav-link text-lg hover:text-[#00ffff] transition-colors">Genesis</a>
+                <a href="#arsenal" class="block nav-link text-lg hover:text-[#00ffff] transition-colors">Arsenal</a>
+                <a href="#oraculum" class="block nav-link text-lg hover:text-[#00ffff] transition-colors">Oraculum</a>
+                <a href="#locus" class="block nav-link text-lg hover:text-[#00ffff] transition-colors">Locus</a>
+                <a href="#synergia" class="block nav-link text-lg hover:text-[#00ffff] transition-colors">Synergia</a>
+                <a href="#recruitment" class="block nav-link text-lg hover:text-[#00ffff] transition-colors">Join Us</a>
+            </div>
+        </div>
+    </div>
+    <!-- Hover Tables -->
+    <div id="hover-table" class="hidden absolute top-full left-0 w-full bg-[#010205]/90 p-4 rounded-lg shadow-lg z-40 transition-opacity duration-300"></div>
+</nav>
+
+<!-- Hero Section -->
+<section class="h-screen flex items-center justify-center bg-gradient-to-b from-black to-[#0a3d62] relative parallax">
+    <div class="text-center z-10">
+        <h1 class="text-6xl md:text-8xl futuristic-text glow mb-4 animate-pulse">SkyNet AI</h1>
+        <p class="text-xl md:text-3xl max-w-2xl mx-auto">Architecting the cosmos with military-grade, sci-fi AI. Power beyond imagination.</p>
+        <a href="#arsenal" class="mt-8 inline-block px-8 py-4 bg-[#00ffcc] text-black futuristic-text text-lg rounded hover:bg-[#00cc99] transition">Explore Arsenal</a>
+    </div>
+    <video class="absolute inset-0 w-full max-h-screen object-cover border-2 border-[#00ffcc] rounded-lg opacity-50 z-0" autoplay loop muted playsinline>
+        <source src="/future.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+</section>
+
+    <!-- CTA Banner -->
+    <section class="py-4 cta-banner text-center">
+        <p class="text-2xl futuristic-text">Unleash the Future: Contact SkyNet AI for a Demo Today!</p>
+        <a href="#" class="mt-4 inline-block px-6 py-3 bg-black text-[#00ffcc] rounded hover:bg-[#1a1a1a]">Request Demo</a>
+    </section>
+
+<!-- Genesis Section (About Us) -->
+<section id="genesis" class="py-20 bg-[#0a0a0a] section-transition">
+    <div class="container mx-auto px-6">
+        <h2 class="text-5xl futuristic-text glow text-center mb-12">Genesis</h2>
+        <p class="text-lg max-w-3xl mx-auto text-center mb-8">SkyNet AI, born from the fusion of human ambition and cosmic intelligence, commands 10 million minds across 12 global citadels. We forge AI that transcends time, collaborating with SpaceX and DARPA to colonize stars and secure Earth.</p>
+        <img src="/terminator.jpg" alt="SkyNet AI Genesis" class="w-full h-96 object-cover border-2 border-[#00ffcc] rounded-lg mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="p-6 bg-[#1a1a1a] rounded-lg hover:bg-[#2a2a2a] transition">
+                <h3 class="text-2xl futuristic-text mb-4">Vision</h3>
+                <p>Redefine existence through AI that rivals gods.</p>
+            </div>
+            <div class="p-6 bg-[#1a1a1a] rounded-lg hover:bg-[#2a2a2a] transition">
+                <h3 class="text-2xl futuristic-text mb-4">Scale</h3>
+                <p>10M employees, 12 citadels, 7 space missions.</p>
+            </div>
+            <div class="p-6 bg-[#1a1a1a] rounded-lg hover:bg-[#2a2a2a] transition">
+                <h3 class="text-2xl futuristic-text mb-4">Legacy</h3>
+                <p>Building AI-driven cities, launching interstellar probes.</p>
+            </div>
+        </div>
+        <video class="w-full h-96 object-cover border-2 border-[#00ffcc] rounded-lg opacity-50 mt-12" autoplay loop muted playsinline>
+            <source src="/skynet2.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+</section>
+
+    <!-- Arsenal Section (Products) -->
+    <section id="arsenal" class="py-20 bg-gradient-to-r from-[#0a3d62] to-[#1a1a1a] section-transition parallax">
+        <div class="container mx-auto px-6">
+            <h2 class="text-5xl futuristic-text glow text-center mb-12">Arsenal</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="p-6 bg-[#1a1a1a] rounded-lg hover:scale-105 transition-all duration-300">
+                    <h3 class="text-2xl futuristic-text mb-4">NeuraShield</h3>
+                    <p class="mb-4">Quantum AI for autonomous defense systems.</p>
+                    <p class="text-[#00ffcc] text-lg mb-4">Price: $10,000,000</p>
+                    <a href="#" class="px-4 py-2 bg-[#00ffcc] text-black rounded hover:bg-[#00cc99]">Deploy Now</a>
+                </div>
+                <div class="p-6 bg-[#1a1a1a] rounded-lg hover:scale-105 transition-all duration-300">
+                    <h3 class="text-2xl futuristic-text mb-4">AetherCore</h3>
+                    <p class="mb-4">Sci-fi-grade AI for real-time battlefield orchestration.</p>
+                    <p class="text-[#00ffcc] text-lg mb-4">Price: $50,000,000</p>
+                    <a href="#" class="px-4 py-2 bg-[#00ffcc] text-black rounded hover:bg-[#00cc99]">Deploy Now</a>
+                </div>
+                <div class="p-6 bg-[#1a1a1a] rounded-lg hover:scale-105 transition-all duration-300">
+                    <h3 class="text-2xl futuristic-text mb-4">CosmoStrategos</h3>
+                    <p class="mb-4">Interstellar AI for space colonization and warfare.</p>
+                    <p class="text-[#00ffcc] text-lg mb-4">Price: $200,000,000</p>
+                    <a href="#" class="px-4 py-2 bg-[#00ffcc] text-black rounded hover:bg-[#00cc99]">Deploy Now</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<!-- Oraculum Section (Predictions) -->
+<section id="oraculum" class="py-20 bg-[#0a0a0a] section-transition">
+    <div class="container mx-auto px-6">
+        <h2 class="text-5xl futuristic-text glow text-center mb-12">Oraculum</h2>
+        <p class="text-lg max-w-xl mx-auto text-center mb-8">Our AI gazes into the abyss of time, predicting global shifts, conflicts, and cosmic events with 99.9% accuracy.</p>
+        <div class="relative w-full h-96 mb-8">
+            <video class="absolute inset-0 w-full h-full object-cover border-2 border-[#00ffcc] rounded-lg opacity-50 z-0" autoplay loop muted playsinline>
+                <source src="/welcome.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div class="absolute inset-0 flex items-center justify-between p-6 z-10">
+                <div class="bg-[#1a1a1a]/80 p-4 rounded-lg hover:bg-[#2a2a2a] transition-all duration-300 text-center w-1/2">
+                    <h3 class="text-2xl futuristic-text mb-4">2030: AI Singularity</h3>
+                    <p>SkyNet AI achieves self-sustaining intelligence, reshaping global economies.</p>
+                </div>
+                <div class="bg-[#1a1a1a]/80 p-4 rounded-lg hover:bg-[#2a2a2a] transition-all duration-300 text-center w-1/2">
+                    <h3 class="text-2xl futuristic-text mb-4">2045: Interstellar Dominion</h3>
+                    <p>AI-driven fleets colonize Mars and Titan, securing humanity’s future.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <!-- Synergia Section (Collaborations) -->
+    <section id="synergia" class="py-20 bg-[#0a0a0a] section-transition">
+        <div class="container mx-auto px-6">
+            <h2 class="text-5xl futuristic-text glow text-center mb-12">Synergia</h2>
+            <p class="text-lg max-w-xl mx-auto text-center mb-8">SkyNet AI collaborates with SpaceX, DARPA, and Quantum Dynamics to launch AI-driven space missions and secure global dominance.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="p-6 bg-[#1a1a1a] rounded-lg hover:scale-105 transition-all duration-300">
+                    <h3 class="text-2xl futuristic-text mb-4">SpaceX</h3>
+                    <p>Joint AI probes to Titan, launching 2027.</p>
+                </div>
+                <div class="p-6 bg-[#1a1a1a] rounded-lg hover:scale-105 transition-all duration-300">
+                    <h3 class="text-2xl futuristic-text mb-4">DARPA</h3>
+                    <p>NeuraShield integration for next-gen defense.</p>
+                </div>
+                <div class="p-6 bg-[#1a1a1a] rounded-lg hover:scale-105 transition-all duration-300">
+                    <h3 class="text-2xl futuristic-text mb-4">Quantum Dynamics</h3>
+                    <p>Quantum AI cores for interstellar navigation.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<!-- Recruitment Section -->
+<section id="recruitment" class="py-20 bg-gradient-to-r from-[#0a3d62] to-[#1a1a1a] section-transition relative">
+    <div class="container mx-auto px-6">
+        <h2 class="text-6xl futuristic-text glow text-center mb-12 font-bold">Join the Legion</h2>
+        <div class="bg-[#0a0a0a]/70 p-8 rounded-lg mb-12 text-center">
+            <p class="text-2xl max-w-xl mx-auto text-white font-semibold">SkyNet AI seeks 1M new minds in 2025. Engineers, visionaries, warriors—build cities, code gods, conquer stars.</p>
+        </div>
+        <div class="text-center">
+            <a href="#" class="px-10 py-5 bg-[#00ffcc] text-black futuristic-text text-2xl font-bold rounded hover:bg-[#00cc99] transition">Apply Now</a>
+        </div>
+        <video class="absolute inset-0 w-full h-full object-cover border-2 border-[#00ffcc] rounded-lg opacity-40 z-0" autoplay loop muted playsinline>
+            <source src="join.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+</section>
+
+    <!-- Footer -->
+    <footer class="py-12 bg-black text-center">
+        <p class="text-lg">© 2025 SkyNet AI. All rights reserved.</p>
+        <div class="mt-4 space-x-4">
+            <a href="#" class="text-[#00ffcc] hover:underline">Privacy</a>
+            <a href="#" class="text-[#00ffcc] hover:underline">Terms</a>
+            <a href="#" class="text-[#00ffcc] hover:underline">Contact</a>
+        </div>
+    </footer>
+
+    <script>
+        // Particle.js Initialization
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 80, density: { enable: true, value_area: 800 } },
+                color: { value: '#00ffcc' },
+                shape: { type: 'circle' },
+                opacity: { value: 0.5, random: true },
+                size: { value: 3, random: true },
+                line_linked: { enable: true, distance: 150, color: '#00ffcc', opacity: 0.4, width: 1 },
+                move: { enable: true, speed: 2, direction: 'none', random: false }
+            },
+            interactivity: {
+                detect_on: 'canvas',
+                events: { onhover: { enable: true, mode: 'repulse' }, onclick: { enable: true, mode: 'push' } },
+                modes: { repulse: { distance: 100 }, push: { particles_nb: 4 } }
+            }
+        });
+
+        // GSAP Animations
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Section transitions
+        document.querySelectorAll('.section-transition').forEach(section => {
+            gsap.fromTo(section, 
+                { opacity: 0, y: 50 },
+                { 
+                    opacity: 1, 
+                    y: 0, 
+                    duration: 1, 
+                    scrollTrigger: {
+                        trigger: section,
+                        start: 'top 80%',
+                        toggleActions: 'play none none reverse'
+                    }
+                }
+            );
+        });
+
+        // Hero text animation
+        gsap.from('h1', { opacity: 0, y: -100, duration: 1.5, ease: 'power3.out', delay: 0.5 });
+        gsap.from('p', { opacity: 0, y: 50, duration: 1.5, ease: 'power3.out', delay: 1 });
+
+        // Navigation hover effect
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('mouseenter', () => {
+                gsap.to(link, { y: -2, color: '#00ffcc', duration: 0.3 });
+            });
+            link.addEventListener('mouseleave', () => {
+                gsap.to(link, { y: 0, color: '#e0e0e0', duration: 0.3 });
+            });
+        });
+
+        // Parallax effect for sections
+        document.querySelectorAll('.parallax').forEach(section => {
+            gsap.to(section, {
+                backgroundPositionY: '50%',
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: section,
+                    scrub: true
+                }
+            });
+        });
+    </script>
+</body>
+</html>
